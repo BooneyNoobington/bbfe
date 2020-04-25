@@ -12,11 +12,10 @@ Perhaps it can be used in conjunction with gnupg or other actual encrytion softw
 
 Depending on which variant of bbfe you want to use, you need:
 
-```
-An R environment
-An python 3 environment
-A c++ compiler and common libraries
-```
+* An R environment
+* An python 3 environment
+* A c++ compiler and common libraries
+
 
 ### Installing
 

@@ -43,10 +43,12 @@ struct histogramLine {
 
 // Function for reading a single line of the histogram file.
 std::istream& readLine( std::istream& inputStream, histogramLine& x ){
-  getline( inputStream, x.place, '\t');
-  getline( inputStream, x.character, '\t');
-  getline( inputStream, x.abundance, '\n');
-  return( inputStream );
+  getline( inputStream, x.place, '\t');  // Read a fiven line until ";" appears.
+  getline( inputStream, x.character, '\t');  // see above.
+  getline( inputStream, x.abundance, '\n');  // Now stop at the newline.
+  return( inputStream );  // Return inputStream.
+  /* TODO: Understand why I need to return something…
+     Maybe because the input stream is computed and thereforce changed? */
 } 
 
 // Function for creating a cipher_table.csv.
@@ -58,13 +60,17 @@ void newTable( std::string charset, std::string file ){
   int lineIndex = 0;
 
   std::ifstream csvRead( charset );  // Read the file.
+  // Constructs new object "csvRead".
 
   if ( !csvRead.is_open() ){  // For whatever reason the file wasn't opened.
     std::cout << "File " << charset << " couldn't be opened.";
   } else {  // Otherwise …
     for ( histogramLine line; readLine( csvRead, line ); lineIndex++){
+    // Construct a new oject "line" from class "histogramLine"…
+    // … every time the function readLine() is called on the object "csvRead".
+    // Also: increase increment of lineIndex.
       if (lineIndex > 0) {  // Omit the headers.
-        places.push_back(line.place);
+        places.push_back(line.place);  // Add a new entry in the places vec.
         characters.push_back(line.character);
         abundances.push_back(std::stof(line.abundance));
         std::cout << characters[lineIndex-1] << "|" << abundances[lineIndex-1] << std::endl;
