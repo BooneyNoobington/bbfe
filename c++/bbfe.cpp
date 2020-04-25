@@ -46,28 +46,28 @@ std::istream& readLine( std::istream& inputStream, histogramLine& x ){
   getline( inputStream, x.place, '\t');
   getline( inputStream, x.character, '\t');
   getline( inputStream, x.abundance, '\n');
-  return inputStream;
+  return( inputStream );
 } 
 
 // Function for creating a cipher_table.csv.
 void newTable( std::string charset, std::string file ){
 
   std::vector<std::string> places;
-  std::vector<char> characters;
+  std::vector<std::string> characters;
   std::vector<float> abundances;
   int lineIndex = 0;
 
-  // Read the file.
-  std::ifstream csvRead( charset );
+  std::ifstream csvRead( charset );  // Read the file.
 
   if ( !csvRead.is_open() ){  // For whatever reason the file wasn't opened.
     std::cout << "File " << charset << " couldn't be opened.";
   } else {  // Otherwise …
     for ( histogramLine line; readLine( csvRead, line ); lineIndex++){
-      if( lineIndex > 0 ){
+      if (lineIndex > 0) {  // Omit the headers.
         places.push_back(line.place);
-        characters.push_back(line.character[0]);
-        abundances.push_back(stringToFloat(line.abundance));
+        characters.push_back(line.character);
+        abundances.push_back(std::stof(line.abundance));
+        std::cout << characters[lineIndex-1] << "|" << abundances[lineIndex-1] << std::endl;
       }
     }
   }
