@@ -5,59 +5,54 @@
 from argparse import ArgumentParser  # Handle command line arguments
 from csv import writer, reader, QUOTE_NONE
 from math import ceil  # For rounding up.
-from itertools import repeat  # For repeating a given statement.
 from string import ascii_uppercase  # Get a list of uppercase letters.
-from random import randint  # Generate a random integer.
+from random import randint, shuffle  # Generate a random integer or shuffle
+                                     # a list.
 from datetime import datetime  # Get the current time.
+from sys import exit  # Terminate the script early.
 
 parser = ArgumentParser()  # Define a parser.
 # The command passed to this script.
 parser.add_argument("command"
-                    , help="Action to be performed by this script."
-                    , choices=[ "encipher", "decipher", "table" ]
-                   )
+ , help="Action to be performed by this script."
+ , choices=[ "encipher", "decipher", "table" ]
+ )
 # The text to be processed.
 parser.add_argument("text"
-                    , help="Text to be en- or deciphered."
-                    , nargs="?"  # Needed since positional arguments cannot be
-                                 # ommited but in case of 'table' the 'text'
-                                 # argument makes no sense.
-                   )
+ , help="Text to be en- or deciphered."
+ , nargs="?"  # Needed since positional arguments cannot be
+              # ommited but in case of 'table' the 'text
+              # argument makes no sense
+ )
 # Where is the cipher table or where should it be written to?
 parser.add_argument("-f"
-                    , "--file"
-                    , help="Input or output of the cipher table."
-                    , default='bbfe_cipher_table_' 
-                              + datetime.now().strftime("%Y.%m.%d_%H.%M.%S")
-                              + '.csv'
-                   )
+ , "--file"
+ , help="Input or output of the cipher table."
+ , default='bbfe_cipher_table_' 
+            + datetime.now().strftime("%Y.%m.%d_%H.%M.%S") + '.csv'
+ )
 # An alphabet table.
 parser.add_argument("-c"
-                    , "--charset"
-                    , help="Characters to be distributed in the cipher table."
-                    , default="alphabet.csv"
-                   )
+ , "--charset"
+ , help="Characters to be distributed in the cipher table."
+ , default="alphabet.csv"
+ )
 # An option for verbose output.
 parser.add_argument('-v'
-                    , '--verbose'
-                    , help='Give a verbose output.'
-                    , action="store_true"
-                    , dest="verbose"
-                   )
+ , '--verbose'
+ , help='Give a verbose output.'
+ , action="store_true"
+ , dest="verbose"
+ )
 
 arguments = parser.parse_args()  # Read arguments from the command line. 
 
-
-### Variable assignment. ###
+# Variable assignment.
 command = arguments.command  # Given command. First positional argument.
-
 text = arguments.text  # Given text to en- or decipher. Second positional arg.
-
-file = arguments.file 
-
-charset = arguments.charset
-
-verbose = arguments.verbose
+file = arguments.file  # Optional argument for path of cipher table.
+charset = arguments.charset  # Optional argument for path of alphabet.
+verbose = arguments.verbose  # Optional argument for verbose output.
 
 
 ### Creating a cipher table. ###
@@ -65,7 +60,7 @@ if command == 'table':
 
   # Lists, gathered from a csv-file.
   place = []
-  letter = []
+  character = []
   abundance = []
   occurence = []
 
@@ -77,53 +72,57 @@ if command == 'table':
         for row in csv_reader:  # For all extracted lines …
           # … add new items to the lists for place, letter and its' abundance.
           place.append(row[0])
-          letter.append(row[1])
+          character.append(row[1])
           abundance.append(float(row[2].replace(",",".")))
           # Decimal could be given by a comma.
   except:
     print(f'Something went wrong, when opening \'{charset}\'. ' 
           + 'Does the file exist in the current directory?')
+    exit( 1 )
 
-  # Define a new list which contains an integer for how often a char is to appear.
+  # Define a new list which contains an integer
+  # for how often a char is to appear.
   for element in abundance:
     occurence.append( ceil( element ) * 2 )  # Round up to get a integer
                                                   # bigger than zero.
 
   # New list for characters from the charset but every character appears at
   # least twice.
-
   characters = []
 
   # Fill this new list.
-  for i in letter:  # For all elements in the "letter" list …
-    for _ in repeat(None, occurence[letter.index(i)]):
+  for _ in character:  # For all elements in the "character" list …
+    for __ in range( 0, occurence[character.index(_)] ):
       # … repeat the following statement n-times (given by occurence).
-      characters.append(i)  # Add a new item.
+      characters.append(_)  # Add a new item.
+
+  # Shuffle the "characters" vector.
+  shuffle( characters )
 
   alphabet = list(ascii_uppercase)  # A list for the alphabet.
                                            # Represents the columns.
   rowcount = ceil(len(characters) / 26)  # How many rows will there be?
 
-  character_table = {}  # A Dictianory for the character columns and rows.
+
+  cipherTable = {}  # A Dictianory for the character columns and rows.
 
   for j in range(0, 26):  # 26 times, zero based.
-    character_table[alphabet[j]] = [None] * rowcount
+    cipherTable[alphabet[j]] = [None] * rowcount
     # Add a new key, which is a letter from the alphabet in ascending order …
     # and then add empty lists as the value.
     # Their length is determined by a rounded up number of charactes from
     # the characters list.
 
-  for key in character_table:  # Meaning: from A to Z.
-    for index in range(0, len(character_table[key])):
+
+  for key in cipherTable:  # Meaning: from A to Z.
+    for index in range(0, len(cipherTable[key])):
     # Create an index for the elements of the respective list.
       if len(characters) > 0:  # The character list still has elements.
-        character_table[key][index] = characters.pop(
-                                       randint(0, len(characters) - 1)
-                                      )
+        cipherTable[key][index] = characters.pop()
         # Go to the value of "key" and it's position "index" …
         # … and place a random element of "characters" there.
       else:  # Characters list is empty.
-        character_table[key][index] = " "  # Fill the position with a whitespace.
+        cipherTable[key][index] = " "  # Fill the position with a whitespace.
 
 
   # Write the character table to a csv file.
@@ -134,7 +133,7 @@ if command == 'table':
       line = []
       for lineindex in range(0, rowcount):
         for rowindex in alphabet:
-          line.append(character_table[rowindex][lineindex])
+          line.append(cipherTable[rowindex][lineindex])
         linewriter.writerow( line )
         line.clear()
   except:
@@ -146,13 +145,13 @@ if command == 'table':
 if command == 'encipher':
   # Create a new dictionary for the cipher table.
   alphabet = list(ascii_uppercase)  # A list for the alphabet.
-  character_table = {}  # A Dictianory for the character columns and rows.
+  cipherTable = {}  # A Dictianory for the character columns and rows.
 
   # Determine the number of lines in the given file.
   # Needed for the lists in the cipher table dictionary.
 
   for j in range(0, 26):  # 26 times, zero based.
-    character_table[alphabet[j]] = []
+    cipherTable[alphabet[j]] = []
     # Add a new key, which is a letter from the alphabet in ascending order …
     # and then add empty lists as the value.
     # Their length is determined by how many lines there are in the file.
@@ -165,7 +164,7 @@ if command == 'encipher':
       for row in csv_reader:  # For every line …
         for column in alphabet:  # … iterate over every letter in the alphabet.
         # These letters correspond with the keys of the cipher table dictionary.
-          character_table[column].append(row[ord(column) - 65])
+          cipherTable[column].append(row[ord(column) - 65])
           # The column is the key (letters).
           # Append an entry from the row that was just read.
           # "Transform" the letter into a number to get a proper list index.
@@ -180,7 +179,7 @@ if command == 'encipher':
     # Containing keys "columns" (A to Z) and "rows".
     for key in dictionary:  # Meaning: from A to Z.
       # TODO: Works only of the value to a key is a list.
-      for index in range(0, len(character_table[key])):  # For all elements of
+      for index in range(0, len(cipherTable[key])):  # For all elements of
                                                          # the list belonging to
                                                          # the "key".
         if dictionary[key][index] == search_char:  # If the interesting char
@@ -193,7 +192,7 @@ if command == 'encipher':
   cipheredText = ''
 
   for char in text:
-    possibilities = find_positions( character_table, char )
+    possibilities = find_positions( cipherTable, char )
     # What possibilities are there encipher a given character?
 
     # Quick sanity check.
@@ -213,13 +212,13 @@ if command == 'decipher':
 
   # Create a new dictionary for the cipher table.
   alphabet = list(ascii_uppercase)  # A list for the alphabet.
-  character_table = {}  # A Dictianory for the character columns and rows.
+  cipherTable = {}  # A Dictianory for the character columns and rows.
 
   # Determine the number of lines in the given file.
   # Needed for the lists in the cipher table dictionary.
 
   for j in range(0, 26):  # 26 times, zero based.
-    character_table[alphabet[j]] = []
+    cipherTable[alphabet[j]] = []
     # Add a new key, which is a letter from the alphabet in ascending order …
     # and then add empty lists as the value.
     # Their length is determined by how many lines there are in the file.
@@ -232,7 +231,7 @@ if command == 'decipher':
       for row in csv_reader:  # For every line …
         for column in alphabet:  # … iterate over every letter in the alphabet.
         # These letters correspond with the keys of the cipher table dictionary.
-          character_table[column].append(row[ord(column) - 65])
+          cipherTable[column].append(row[ord(column) - 65])
           # The column is the key (letters).
           # Append an entry from the row that was just read.
           # "Transform" the letter into a number to get a proper list index.
@@ -261,8 +260,8 @@ if command == 'decipher':
 
   for decipherPosition in range(0, len(letters) ):
     if verbose == True:
-      print(f'Deciphering column {letters[decipherPosition]} and row {str(numbers[decipherPosition])} as {character_table[letters[decipherPosition]][numbers[decipherPosition] -1]}' )    
-    decipheredText = decipheredText + character_table[letters[decipherPosition]][numbers[decipherPosition] -1]
+      print(f'Deciphering column {letters[decipherPosition]} and row {str(numbers[decipherPosition])} as {cipherTable[letters[decipherPosition]][numbers[decipherPosition] -1]}' )    
+    decipheredText = decipheredText + cipherTable[letters[decipherPosition]][numbers[decipherPosition] -1]
  
   print( decipheredText )
 

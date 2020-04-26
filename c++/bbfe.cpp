@@ -4,33 +4,13 @@
 #include <fstream>  // For file io.
 #include <string>  // Working with strings.
 #include <vector>  // For the class "vector".
+#include <numeric>
 #include <map>  // For the class "dictianory".
-
-
-// A function to convert a string to a float.
-// TODO: Why is this nececarry and I can't just use stof().
-// But stof( "17.40" ) gives just 17.
-float stringToFloat(std::string x){
-  float result= 0.0;  // Initialize "result" as float and 0,0.
-  int len = x.length();  // Extract the length of the passed string.
-  int dotPosition = 0;  // Position of the decimal point.
-
-  // Iterate over all characters in the string.
-  for (int i = 0; i < len; i++){
-    if (x[i] == '.' or x[i] == ','){  // Find the decimal deilimieter.
-      dotPosition = len - i  - 1;  // Lock its' position.
-    } else {  // Haven't reached decimal point yet.
-      result = result * 10.0 + (x[i]-'0');  // Multiply according to position.
-    }
-  }
-
-  // Handle everything behind the decimal point.
-  while (dotPosition--){  // Count the post decimal point digits down.
-        result /= 10.0;  // Divide according to position.
-  }
-
-  return result;  // Return the produced float.
-}
+#include <math.h>
+#include <algorithm>    // std::random_shuffle
+#include <time.h>
+#include <unistd.h> 
+#include <iterator>
 
 
 // A new struct containing the three important rows,
@@ -54,10 +34,19 @@ std::istream& readLine( std::istream& inputStream, histogramLine& x ){
 // Function for creating a cipher_table.csv.
 void newTable( std::string charset, std::string file ){
 
+  std::srand((unsigned) time(NULL) * getpid());  // Set the seed as randomly
+                                                 // as possible.
+
+
+  // Define a few vectors which will hold the values from the .csv file.
   std::vector<std::string> places;
   std::vector<std::string> characters;
   std::vector<float> abundances;
-  int lineIndex = 0;
+  std::vector<int> occurences;
+
+
+  int lineIndex = 0;  // Will serve as a line index later.
+
 
   std::ifstream csvRead( charset );  // Read the file.
   // Constructs new object "csvRead".
@@ -71,19 +60,102 @@ void newTable( std::string charset, std::string file ){
     // Also: increase increment of lineIndex.
       if (lineIndex > 0) {  // Omit the headers.
         places.push_back(line.place);  // Add a new entry in the places vec.
-        characters.push_back(line.character);
+        characters.push_back(line.character);  // Sames as above.
         abundances.push_back(std::stof(line.abundance));
-        std::cout << characters[lineIndex-1] << "|" << abundances[lineIndex-1] << std::endl;
+        // Same as above but convert the passed string to a float.
+        occurences.push_back(std::ceil(abundances[lineIndex-1]) * 2 );
       }
     }
   }
+
+  std::vector<std::string> charactersMultiplied;  // Create a new vecotr which 
+                                                  // will hold the characerts.
+
+  /* Enlarge the characters vector.
+     Each element should appear according to "occurences". */
+  for ( int i = 0; i < characters.size(); i++) {
+    // First iterate over all characters in the string "characters."
+    for ( int j = 0; j < occurences[i]; j++ ){
+      // Then see how often the character is supposed to occur (given
+      // by occurences[i], while "i" beeing the position of the
+      // current character.
+      charactersMultiplied.push_back( characters[i] );
+      // Add this new character to the new vector "charactersMultiplied".
+    }
+  }
+
+  // Now, that this vector is filled with chars, shuffle them.
+  std::random_shuffle( charactersMultiplied.begin(),
+   charactersMultiplied.end() );
+
+  // Creat a new vector with all uppercase letters in the alphabet.
+  std::vector<char> alphabet(26);
+  std::iota(alphabet.begin(), alphabet.end(), 'A');
+
+  /* How many "rows" will every "column" of the dictianory have? Important
+     thing here: Reinterpret the vector sizes as double. Otherwise they
+     won't yield another double after division. */
+  int rowCount = std::ceil(
+   (double)charactersMultiplied.size() / (double)alphabet.size() );
+
+  // Declare a new map which will hold the cipher table.  
+  std::map<char, std::vector<std::string>> cipherTable;
+
+  int characterIndex = 0;  // Will later be used as iteration index.
+
+  /* Now go through all letters of the alphabet and add a new character
+     from the "charactersMultiplied" vector succesively.
+     The index "characterIndex" makes this succesion possible.*/
+  for ( int i = 0; i < alphabet.size(); i++ ) {  // For every letter …
+    cipherTable.insert( { alphabet[i], {} } );  // … add a key accordingly.
+    // Leave the character vector empty for now.
+    for ( int j = 0; j < rowCount; j++ ) {  // For every row in the upcoming
+                                            // cipher table …
+      // … add one of the shuffled characters.
+      if ( characterIndex < charactersMultiplied.size() ) {  // Characters left.
+        cipherTable[ alphabet[i] ].push_back(
+         charactersMultiplied[ characterIndex ] );
+      } else { // No further characters left.
+        cipherTable[ alphabet[i] ].push_back( " " );  // Add a whitespace.
+      }
+      characterIndex++;  // Increase index of "charactersMultiplied" vector.
+    }
+  }
+
+  // Write the newly generated cipher table.
+  std::string line;  // Will be filled for every row later.
+  std::ofstream writeCSV( file );  // Declare new output stream.
+                                   // File was given to the function by main().
+  std::ostream_iterator<std::string> outputIterator(writeCSV, "\n");
+  for ( int rowIndex = 0; rowIndex < rowCount; rowIndex++ ) {
+    for ( int columnIndex = 0; columnIndex < alphabet.size(); columnIndex++ ) {
+      if ( columnIndex < alphabet.size() -1  ) {
+      // For every column except the last one …
+        line = line + cipherTable[ alphabet[columnIndex] ][rowIndex] + "\t";
+      } else {
+        line = line + cipherTable[ alphabet[columnIndex] ][rowIndex] + "\n";
+        // When the last column is reached the string should start a new line.
+      }
+      // Build the line vector.
+      // Happens row by row (rowindex is incremented on the outer loop)
+      // and column by columns (iteration over the keys of the map on
+      // the outer loop).
+    }
+    writeCSV << line;
+    line = "";  // Clear the vector to make it ready for the next line.
+  }
+
+
+  writeCSV.close();  // Close the output stream so that "file" gets unlocked.
 
 }
 
 // Main function.
 int main(int argc, char **argv){  // Must have 2 or 0 arguments. Why?
 
-  std::locale::global( std::locale( "de_DE.utf8" ) );
+  std::setlocale(LC_NUMERIC, "en_US.UTF-8");
+  // Set the locale. E.g. for the decimal point.
+  // TODO: This should rather depend on how the charset file is formatted.
 
   /* TODO: Understand, why I need to pass argv[1] to a string instead  of
      using it directly. */
