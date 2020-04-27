@@ -11,7 +11,10 @@
 #include <time.h>
 #include <unistd.h> 
 #include <iterator>
+#include <boost/program_options.hpp>
+namespace po = boost::program_options;
 
+using namespace std;
 
 // A new struct containing the three important rows,
 struct histogramLine {
@@ -150,8 +153,55 @@ void newTable( std::string charset, std::string file ){
 
 }
 
+
+// Encipher a message.
+void encipher( std::string text, std::string file ) {
+  // "text" is the message to be enciphered, 
+  // "file" the path to the cipher table.
+  if ( file.empty() ) {  // No file was given.
+    file = "./cipher_table.csv";  // Assume an existing cipher table in the
+                                  // current directory.
+  }
+}
+
+
 // Main function.
 int main(int argc, char **argv){  // Must have 2 or 0 arguments. Why?
+
+  try {
+ 
+    po::options_description desc("Allowed options");
+    desc.add_options()
+    ("help", "produce help message")
+    ("compression", po::value<double>(), "set compression level")
+    ;
+
+    po::variables_map vm;        
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);    
+
+    if (vm.count("help")) {
+      cout << desc << "\n";
+      return 0;
+    }
+
+    if (vm.count("compression")) {
+      cout << "Compression level was set to " 
+       << vm["compression"].as<double>() << ".\n";
+    } else {
+      cout << "Compression level was not set.\n";
+    }
+  
+  }
+  
+  catch(exception& e) {
+    cerr << "error: " << e.what() << "\n";
+    return 1;
+  }
+ 
+  catch(...) {
+    cerr << "Exception of unknown type!\n";
+  }
 
   std::setlocale(LC_NUMERIC, "en_US.UTF-8");
   // Set the locale. E.g. for the decimal point.
