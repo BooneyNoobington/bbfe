@@ -7,102 +7,167 @@
 #include <numeric>
 #include <map>  // For the class "dictianory".
 #include <math.h>
-#include <algorithm>    // std::random_shuffle
-#include <time.h>
+#include <algorithm>    // random_shuffle
+#include <time.h>  // For setting the seed.
 #include <unistd.h> 
 #include <iterator>
-#include <boost/program_options.hpp>
+#include <boost/program_options.hpp>  // For handling input.
+#include <utility> // pair
+#include <stdexcept> // runtime_error
+#include <sstream> // stringstream
+
+// Set an alias for the long namespace identifier "boost::programm_options".
 namespace po = boost::program_options;
 
+// Use the namespace std to avoid long identifiers as "std::string".
 using namespace std;
 
-// A new struct containing the three important rows,
-struct histogramLine {
-  std::string place;
-  std::string character;
-  std::string abundance;
-};
+// Reads a .csv-file into a map of <string, vector<int>> key value pairs where
+// each pair represents <column name, column values>
+map< string, vector<string>> readCSV( string filename, char sep = ',') {
+  // Create a vector of <string, int string> pairs to store the result
+  map<string, vector<string>> result;
+  
+  // Create an input filestream
+  ifstream csvFile(filename);
+ 
+ // Make sure the file is open
+  if( !csvFile.is_open() ) {  // "is_open()" is a method of "ifstream".
+    throw runtime_error("Could not open file");  // Raise an error message.
+  }
 
+  // Auxiliary variables.
+  // "line" for storing "getline()" output.
+  // "colname" for setting the keys of the "map" later.
+  // "val" for the actual value of the column imported from .csv-file.
+  string line, colname, val;
+  // Later it's necessary to access a key of the map "result" not by its
+  // key but an index.
+  // Maps don't have indexes but this auxiliary vector can help.
+  vector<string> columns;
 
-// Function for reading a single line of the histogram file.
-std::istream& readLine( std::istream& inputStream, histogramLine& x ){
-  getline( inputStream, x.place, '\t');  // Read a fiven line until ";" appears.
-  getline( inputStream, x.character, '\t');  // see above.
-  getline( inputStream, x.abundance, '\n');  // Now stop at the newline.
-  return( inputStream );  // Return inputStream.
-  /* TODO: Understand why I need to return something…
-     Maybe because the input stream is computed and thereforce changed? */
-} 
-
-// Function for creating a cipher_table.csv.
-void newTable( std::string charset, std::string file ){
-
-  std::srand((unsigned) time(NULL) * getpid());  // Set the seed as randomly
-                                                 // as possible.
-
-
-  // Define a few vectors which will hold the values from the .csv file.
-  std::vector<std::string> places;
-  std::vector<std::string> characters;
-  std::vector<float> abundances;
-  std::vector<int> occurences;
-
-
-  int lineIndex = 0;  // Will serve as a line index later.
-
-
-  std::ifstream csvRead( charset );  // Read the file.
-  // Constructs new object "csvRead".
-
-  if ( !csvRead.is_open() ){  // For whatever reason the file wasn't opened.
-    std::cout << "File " << charset << " couldn't be opened.";
-  } else {  // Otherwise …
-    for ( histogramLine line; readLine( csvRead, line ); lineIndex++){
-    // Construct a new oject "line" from class "histogramLine"…
-    // … every time the function readLine() is called on the object "csvRead".
-    // Also: increase increment of lineIndex.
-      if (lineIndex > 0) {  // Omit the headers.
-        places.push_back(line.place);  // Add a new entry in the places vec.
-        characters.push_back(line.character);  // Sames as above.
-        abundances.push_back(std::stof(line.abundance));
-        // Same as above but convert the passed string to a float.
-        occurences.push_back(std::ceil(abundances[lineIndex-1]) * 2 );
-      }
+  // Read the column names
+  // "good()" is a comprehensive function to check if the stream is "working".
+  if ( csvFile.good() ) {
+    // Extract the first line in the file.
+    // This is done by not using a while-loop.
+    getline(csvFile, line);
+    // Create a stringstream from line.
+    // Stringstream is a bit similar to ifstream.
+    stringstream ss(line);
+    // Extract each column name.
+    // Take the stringstream, modify the string "colname" and stop at
+    // the delimiter given by "sep" (argument of the function).
+    // TODO: Add the option to read .csv-files without headers.
+    while( getline( ss, colname, sep ) ) {
+      // Initialize and add <colname, string vector> pairs to result.
+      result.insert( { colname, vector<string> {} } );
+      // Also add the "colname" to the correspoding vector "columns".
+      columns.push_back( colname );
     }
   }
 
-  std::vector<std::string> charactersMultiplied;  // Create a new vecotr which 
-                                                  // will hold the characerts.
+  // Read data, line by line.
+  // This time do call while to repeat reading after line is complete.
+  while ( getline(csvFile, line) ) {
+    // Create a stringstream of the current line.
+    stringstream ss(line);
+    // Keep track of the current column index
+    unsigned short columnIndex = 0;  // TODO: Maybe not redeclare?
+    // Extract the item from each column.
+    // Remember: "val" is a string declared above.
+    while( getline(ss, val, sep) ) {
+      // Add the current item to the vector which is the correspoding
+      // value to key "result[columnIndex]"
+      result[ columns[columnIndex] ].push_back( val );
+      // If the next token is the given delimiter, ignore it and move on.
+      if ( ss.peek() == sep ) { ss.ignore(); }
+      // Increment the column index
+      columnIndex++;
+    }
+  }
+  // Close file.
+  csvFile.close();
+  // return the result.
+  return result;
+}
+
+// Function for creating a cipher_table.csv.
+void newTable( string charset, string file, bool debug = false ){
+
+  // Reset the seed as fast as possible.
+  srand((unsigned) time(NULL) * getpid());
+
+  // Define a few vectors which will hold the values from the .csv file.
+  vector<string> characters;
+  vector<float> abundances;
+  vector<int> occurences;
+
+  // Will serve as a line index later.
+  short unsigned lineIndex = 0;
+
+  // Obtain the contents of "charset".
+  // Delimiter is a tabulator.
+  map< string, vector<string> > characterSet = readCSV( charset, '\t' );
+
+  ifstream csvRead( charset );  // Read the file.
+  // Constructs new object "csvRead".
+
+  // Transfer and transform the contents of "characterSet"
+  // into the respective vectors.
+  characters = characterSet["letter"];
+  // Transformation/calculation for "abundances" and "occurences" is necessary.
+  for ( unsigned short i = 0; i < characterSet["abundance"].size(); i++ ) {
+    // Transform string to vector.
+    abundances.push_back( stof( characterSet["abundance"][i] ) );
+    // Round it up and multiply with two.
+    occurences.push_back( ceil( abundances[i] ) * 2 );
+  }
+  
+  // Create a new vector which will hold all the characters
+  // as often as "occurences" dictates.
+  vector<string> charactersMultiplied;
 
   /* Enlarge the characters vector.
      Each element should appear according to "occurences". */
-  for ( int i = 0; i < characters.size(); i++) {
+  for ( unsigned short i = 0; i < characterSet["letter"].size(); i++) {
     // First iterate over all characters in the string "characters."
-    for ( int j = 0; j < occurences[i]; j++ ){
+    for ( unsigned short j = 0; j < occurences[i]; j++ ){
       // Then see how often the character is supposed to occur (given
       // by occurences[i], while "i" beeing the position of the
       // current character.
-      charactersMultiplied.push_back( characters[i] );
+      charactersMultiplied.push_back( characterSet["letter"][i] );
       // Add this new character to the new vector "charactersMultiplied".
     }
   }
 
+  // Show the reading of the .csv-file.
+  if ( debug ) {
+    for ( unsigned short i = 0; i < characterSet["place"].size(); i++ ) {
+    cout << characterSet["place"][i] << '\t'
+         << characterSet["letter"][i] << '\t'
+         << characterSet["abundance"][i] << '\t'
+         << abundances[i] << '\t'
+         << occurences[i] << '\t' << endl;
+    } 
+  } 
+
   // Now, that this vector is filled with chars, shuffle them.
-  std::random_shuffle( charactersMultiplied.begin(),
+  random_shuffle( charactersMultiplied.begin(),
    charactersMultiplied.end() );
 
   // Creat a new vector with all uppercase letters in the alphabet.
-  std::vector<char> alphabet(26);
-  std::iota(alphabet.begin(), alphabet.end(), 'A');
+  vector<char> alphabet(26);
+  iota(alphabet.begin(), alphabet.end(), 'A');
 
   /* How many "rows" will every "column" of the dictianory have? Important
      thing here: Reinterpret the vector sizes as double. Otherwise they
      won't yield another double after division. */
-  int rowCount = std::ceil(
-   (double)charactersMultiplied.size() / (double)alphabet.size() );
+  int rowCount = ceil(
+   (float)charactersMultiplied.size() / (float)alphabet.size() );
 
   // Declare a new map which will hold the cipher table.  
-  std::map<char, std::vector<std::string>> cipherTable;
+  map<char, vector<string>> cipherTable;
 
   int characterIndex = 0;  // Will later be used as iteration index.
 
@@ -126,10 +191,10 @@ void newTable( std::string charset, std::string file ){
   }
 
   // Write the newly generated cipher table.
-  std::string line;  // Will be filled for every row later.
-  std::ofstream writeCSV( file );  // Declare new output stream.
+  string line;  // Will be filled for every row later.
+  ofstream writeCSV( file );  // Declare new output stream.
                                    // File was given to the function by main().
-  std::ostream_iterator<std::string> outputIterator(writeCSV, "\n");
+  ostream_iterator<string> outputIterator(writeCSV, "\n");
   for ( int rowIndex = 0; rowIndex < rowCount; rowIndex++ ) {
     for ( int columnIndex = 0; columnIndex < alphabet.size(); columnIndex++ ) {
       if ( columnIndex < alphabet.size() -1  ) {
@@ -155,7 +220,7 @@ void newTable( std::string charset, std::string file ){
 
 
 // Encipher a message.
-void encipher( std::string text, std::string file ) {
+void encipher( string text, string file ) {
   // "text" is the message to be enciphered, 
   // "file" the path to the cipher table.
   if ( file.empty() ) {  // No file was given.
@@ -171,29 +236,37 @@ int main(int argc, char **argv){  // Must have 2 or 0 arguments. Why?
   try {
  
     po::options_description desc("Allowed options");
+    // Declare and initialize a new object for description of options.
     desc.add_options()
     ("help", "produce help message")
-    ("compression", po::value<double>(), "set compression level")
+    ("charset,c", po::value<string>() ->default_value("alphabet_histogram.csv")
+     , "path to file with characters to be used in cipher table")
+    ("file,f", po::value<string>() ->default_value("cipher_table.csv")
+     , "path to cipher table")
+    ("debug,d", po::value<bool>() ->default_value( false )
+     , "print debug related output")
     ;
 
-    po::variables_map vm;        
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-    po::notify(vm);    
+    po::variables_map options;  // Initialize a map called options.
+    po::store(po::parse_command_line(argc, argv, desc), options);
+    po::notify(options);
 
-    if (vm.count("help")) {
-      cout << desc << "\n";
-      return 0;
+    setlocale(LC_NUMERIC, "en_US.UTF-8");
+    // Set the locale. E.g. for the decimal point.
+    // TODO: This should rather depend on how the charset file is formatted.
+
+    /* TODO: Understand, why I need to pass argv[1] to a string instead  of
+       using it directly. */
+    string command = argv[1];  // The command given to the programm.
+
+    if ( command == "table" ){  // Creation of a new cipher table.
+      // Call function for creating a new table.
+      newTable( options["charset"].as<string>()
+       , options["file"].as<string>(), options["debug"].as<bool>() );
     }
 
-    if (vm.count("compression")) {
-      cout << "Compression level was set to " 
-       << vm["compression"].as<double>() << ".\n";
-    } else {
-      cout << "Compression level was not set.\n";
-    }
-  
   }
-  
+
   catch(exception& e) {
     cerr << "error: " << e.what() << "\n";
     return 1;
@@ -201,23 +274,6 @@ int main(int argc, char **argv){  // Must have 2 or 0 arguments. Why?
  
   catch(...) {
     cerr << "Exception of unknown type!\n";
-  }
-
-  std::setlocale(LC_NUMERIC, "en_US.UTF-8");
-  // Set the locale. E.g. for the decimal point.
-  // TODO: This should rather depend on how the charset file is formatted.
-
-  /* TODO: Understand, why I need to pass argv[1] to a string instead  of
-     using it directly. */
-  std::string command = argv[1];  // The command given to the programm.
-
-  if ( command == "table" ){  // Creation of a new cipher table.
-    if ( argc > 3 ){  // Enough arguments provided.
-      newTable( argv[2], argv[3] );  // Call function for creating a new table.
-    } else {
-      std::cout << "You must provide a alphabet histogram"
-                 << " and a file to output.\n";
-    }
   }
 
   return(0);
