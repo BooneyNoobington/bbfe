@@ -5,23 +5,13 @@ Bad but (somewhat) fast encryption. */
 #include <iostream>  // For printing to console.
 #include <boost/program_options.hpp>  // For handling input.
 #include "./newTable.h"  // Function called by this programm.
+#include "./encipher.h"  // Function to encipher a text.
 
 // Set an alias for the long namespace identifier "boost::programm_options".
 namespace po = boost::program_options;
 
 // Use the namespace std to avoid long identifiers as "std::string".
 using namespace std;
-
-// Encipher a message.
-void encipher(string text, string file) {
-  // "text" is the message to be enciphered,
-  // "file" the path to the cipher table.
-  if ( file.empty() ) {  // No file was given.
-    // Assume an existing cipher table in the current directory.
-    file = "./cipher_table.csv";
-  }
-}
-
 
 // Main function.
 int main(int argc, char **argv) {  // Must have 2 or 0 arguments. Why?
@@ -49,11 +39,19 @@ int main(int argc, char **argv) {  // Must have 2 or 0 arguments. Why?
     // TODO(grindel): Understand, why I need to pass argv[1] to a string instead
     // of using it directly. */
     string command = argv[1];  // The command given to the programm.
+    string text = argv[2];  // The second argument is a text.
 
-    if (command == "table") {  // Creation of a new cipher table.
+    // Creation of a new cipher table from a given set of characters.
+    if (command == "table") {
       // Call function for creating a new table.
       newTable(options["charset"].as<string>()
        , options["file"].as<string>(), options["debug"].as<bool>());
+    }
+
+    // A message is to be enciphered.
+    if (command == "encipher") {
+      // Call the function specifically written for that.
+      encipher(text, options["file"].as<string>(), options["debug"].as<bool>());
     }
   }
 
