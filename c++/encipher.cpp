@@ -8,20 +8,23 @@ Bad but (somewhat) fast encryption. */
 #include <string>
 #include <numeric>  // For "iota()".
 #include <unistd.h>
+#include <string.h>
 #include "./readCSV.h"  // For the function of the same name.
 #include "./findInMap.h"  // For the function of the same name.
+#include <locale>
+#include <codecvt>
 
 // Avoid having to call e.g. "string" "std::string".
 using namespace std;
 
 // Encipher a message.
-void encipher(string text, string file, bool debug = false) {
+void encipher(wstring text, string file, bool debug = false) {
   // "text" is the message to be enciphered,
   // "file" the path to the cipher table.
 
-  if (text.empty()) {
-    cout << "Error: Pleasy provide a text to be enciphered.";
-  }
+//  if (text.empty()) {
+//    cout << "Error: Pleasy provide a text to be enciphered.";
+//  }
   // Call the function to read a previously generated cipher table.
   // By setting the second argument to false, a "headless" file (no
   // headers) is assumed.
@@ -61,11 +64,12 @@ void encipher(string text, string file, bool debug = false) {
   iota(alphabet.begin(), alphabet.end(), 'A');
   // Create a new string for the output.
   string cipherString;
-  wstring bull = "ü";
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   // Iterate over all characters in string.
-  for (int i = 0; i < bull.size(); i++) {
+  for (int i = 0; i < text.size(); i++) {
     vector<pair<int, int>> possibilites
-      = findInMap(cipherTable, "ü");  // text.substr(i, 1));
+      = findInMap(cipherTable, converter.to_bytes(text.at(i)));
+      // "ü");  // text.substr(i, 1));
     // Choose one possibility.
     int choice = rand() % possibilites.size();
     cipherString = cipherString + alphabet[possibilites[choice].first]

@@ -6,6 +6,8 @@ Bad but (somewhat) fast encryption. */
 #include <boost/program_options.hpp>  // For handling input.
 #include "./newTable.h"  // Function called by this programm.
 #include "./encipher.h"  // Function to encipher a text.
+#include <locale>
+#include <codecvt>
 
 // Set an alias for the long namespace identifier "boost::programm_options".
 namespace po = boost::program_options;
@@ -38,8 +40,12 @@ int main(int argc, char **argv) {  // Must have 2 or 0 arguments. Why?
 
     // TODO(grindel): Understand, why I need to pass argv[1] to a string instead
     // of using it directly. */
+
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     string command = argv[1];  // The command given to the programm.
-    string text = argv[2];  // The second argument is a text.
+    string testString = argv[2];
+    // The second argument is a text.
+    wstring text = converter.from_bytes(testString);
 
     // Creation of a new cipher table from a given set of characters.
     if (command == "table") {
@@ -51,7 +57,8 @@ int main(int argc, char **argv) {  // Must have 2 or 0 arguments. Why?
     // A message is to be enciphered.
     if (command == "encipher") {
       // Call the function specifically written for that.
-      encipher(text, options["file"].as<string>(), options["debug"].as<bool>());
+      encipher(text, options["file"].as<string>()
+        , options["debug"].as<bool>());
     }
   }
 
