@@ -18,7 +18,9 @@ Bad but (somewhat) fast encryption. */
 using namespace std;
 
 // Encipher a message.
-void encipher(wstring text, string file, bool debug = false) {
+void encipher(string textRaw, string file, bool debug = false) {
+  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+  wstring text = converter.from_bytes(textRaw);
   // "text" is the message to be enciphered,
   // "file" the path to the cipher table.
 
@@ -64,7 +66,6 @@ void encipher(wstring text, string file, bool debug = false) {
   iota(alphabet.begin(), alphabet.end(), 'A');
   // Create a new string for the output.
   string cipherString;
-  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
   // Iterate over all characters in string.
   for (int i = 0; i < text.size(); i++) {
     vector<pair<int, int>> possibilites
