@@ -6,6 +6,7 @@ Bad but (somewhat) fast encryption. */
 #include <boost/program_options.hpp>  // For handling input.
 #include "./newTable.h"  // Function called by this programm.
 #include "./encipher.h"  // Function to encipher a text.
+#include "./decipher.h"  // Function to decipher a text.
 
 // Set an alias for the long namespace identifier "boost::programm_options".
 namespace po = boost::program_options;
@@ -84,6 +85,15 @@ int main(int argc, char **argv) {
         encipher(optionsArgumentsMap["text"].as<string>()
           , optionsArgumentsMap["file"].as<string>()
           , optionsArgumentsMap["debug"].as<bool>());
+      }
+    }
+
+    // A message is to be enciphered.
+    if (optionsArgumentsMap["command"].as<string>() == "decipher") {
+      if (optionsArgumentsMap.count("text")) {
+        // Call the function specifically written for that.
+        decipher(optionsArgumentsMap["text"].as<string>()
+          , optionsArgumentsMap["file"].as<string>());
       }
     }
   }
