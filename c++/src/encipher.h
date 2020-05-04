@@ -7,7 +7,16 @@ Bad but (somewhat) fast encryption. */
 #ifndef C___SRC_ENCIPHER_H_
 #define C___SRC_ENCIPHER_H_
 
+#include <unistd.h>  // For "getpid()".
 #include <string>  // For class "string".
+#include <iostream>  // For console in- and output.
+#include <map>  // For storing result in a map.
+#include <vector>  // Map is made up partially by vectors.
+#include <numeric>  // For "iota()".
+#include <locale>  // For "wstring" conversion.
+#include <codecvt>  // See above.
+#include "./readCSV.h"  // For the function of the same name.
+#include "./findInMap.h"  // For the function of the same name.
 
 void encipher(std::string text, std::string file, bool debug);
 

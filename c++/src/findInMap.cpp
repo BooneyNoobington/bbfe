@@ -11,10 +11,10 @@ Bad but (somewhat) fast encryption. */
 using namespace std;
 
 // _____________________________________________________________________________
-vector< pair<int, int>> findInMap(map<uint8_t, vector<string>> x
+vector< pair< int, int > > findInMap(map< uint8_t, vector< string > > x
   , string y ) {
   // A vector of int pairs as a result.
-  vector< pair<int, int> > searchResult;
+  vector< pair< int, int > > searchResult;
   // Search every key in the map
   for (int key = 0; key < x.size(); key++) {
     // Search trough the value of said key.

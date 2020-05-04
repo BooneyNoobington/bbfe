@@ -12,14 +12,20 @@ Writte by Markus Roth, 2020 */
 // Set an alias for the long namespace identifier "boost::programm_options".
 namespace po = boost::program_options;
 
-// Use the namespace std to avoid long identifiers as "std::string".
-using namespace std;
+// Using declarationsg to avoid long identifiers as "std::string".
+// Can be written in a single line if > C++17 is used.
+using std::string;
+using std::cout;
+using std::endl;
+using std::exception;
+using std::cerr;
 
 // Main function.
 int main(int argc, char **argv) {
   try {
-    po::options_description optionsDescription("Allowed options");
     // Declare and initialize a new object for description of options.
+    po::options_description optionsDescription("Allowed options");
+    // Add several options that can be set.
     optionsDescription.add_options()
     ("help,h", "produce help message")
     ("charset,c", po::value<string>() ->default_value("alphabet_histogram.csv")
@@ -30,8 +36,10 @@ int main(int argc, char **argv) {
      , "print debug related output")
     ("command", po::value<string>(), "command to be executed by this program.")
     ("text", po::value<string>(), "Text to be en- or deciphered");
-    // Handle positional arguments (not comments).
+
+    // Handle positional arguments (not options).
     po::positional_options_description positionalArgumentsDescription;
+
     // Add command descriptions to object.
     positionalArgumentsDescription.add("command", 1);
     positionalArgumentsDescription.add("text", 2);
@@ -51,10 +59,15 @@ int main(int argc, char **argv) {
     // Set the locale. E.g. for the decimal point.
     // TODO(grindel): This should rather depend on how the charset file is
     // formatted.
+    // The function "readCSV()" (used in "newTable") can handle different
+    // delimiters for columns.
+    // TODO(grindel): Maybe add support for decimal too?
     setlocale(LC_NUMERIC, "en_US.UTF-8");
 
     // TODO(grindel): Understand, why I need to pass argv[1] to a string instead
-    // of using it directly. */
+    // of using it directly.
+    // Maybe because "string text = argv[1]" automatically converts char*
+    // to string.
 
 //    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 //    string command = argv[1];  // The command given to the programm.
@@ -62,10 +75,12 @@ int main(int argc, char **argv) {
     // The second argument is a text.
 //    wstring text = converter.from_bytes(testString);
 
-    // Print help to console.
+    // The option "help" was set, therefore it's count is not zero.
     if (optionsArgumentsMap.count("help")) {
+      // Print help to console.
       cout << optionsDescription << "\n";
-      return 1;
+      // Leave with exit code 1.
+      return(1);
     }
 
     // Creation of a new cipher table from a given set of characters.

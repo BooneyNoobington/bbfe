@@ -3,30 +3,28 @@ GPLv3. See: https://www.gnu.org/licenses/gpl-3.0.de.html
 Bad but (somewhat) fast encryption. 
 Kudos to: https://www.geeksforgeeks.org/extract-integers-string-c/*/
 
-#include <stdlib.h>  // Break of program.
-#include <iostream>  // For console in- and output.
-#include <string>  // For class "string".
-#include <vector>  // For class "vector".
-#include <algorithm>  // For "remove_if()".
-#include <cctype>  // For "isdigit()".
-#include <sstream>  // For stringstream.
-#include <map>  // For class "map".
-#include "./readCSV.h"  // For the function of the same name.
 #include "./decipher.h"  // Include own header to avoid typos.
 
-
-using namespace std;
+// Using declarationsg to avoid long identifiers as "std::string".
+// Can be written in a single line if > C++17 is used.
+using std::string;
+using std::cout;
+using std::endl;
+using std::cerr;
+using std::stringstream;
+using std::vector;
+using std::map;
 
 // _____________________________________________________________________________
 void decipher(string text, string file) {
   // Later the input will be cut down to characters and numbers.
-  vector<char> characters;
-  vector<int> numbers;
+  vector< char > characters;
+  vector< int > numbers;
   // It is simple for characters.
   // They only appear as a single character (never "abc", just "A").
   // Just loop over all the individual characters in "text" and
   // decide wether they are a letter (by applying "isalpha()") or not.
-  for (int i = 0; i < text.size(); i++) {
+  for (int i = 0; i <  text.size(); i++) {
     // If a character is a letter add it to vector "characters".
     if (isalpha(text[i])) { characters.push_back(text[i]); }
   }
@@ -48,17 +46,17 @@ void decipher(string text, string file) {
   // a file which contents are read.
   stringstream textStream;
   // "Stream" the input string into the stringstream "textStream".
-  textStream << text;
+  textStream <<  text;
   // Declare a new string "temp" which will hold the above mentioned words.
   string temp;
   // "found" will be an integer which the stringstream will try to fill
   // with values.
   int found;
   while (!textStream.eof()) {
-    textStream >> temp;
+    textStream  >> temp;
     // Only if a "word" can be interpreted as a number it will be added to
     // the numbers vector.
-    if (stringstream(temp) >> found) {
+    if (stringstream(temp)  >> found) {
       numbers.push_back(found);
     }
     // Clear the string "temp". Safety measure against trailing whitespaces.
@@ -67,8 +65,8 @@ void decipher(string text, string file) {
 
   // Quick sanity check.
   if (characters.size() != numbers.size()) {
-    cout << "Error: Letters and numbers differ in length. Input is invalid."
-         << endl;
+    cout <<  "Error: Letters and numbers differ in length. Input is invalid."
+         <<  endl;
     // Break of execution.
     exit(EXIT_FAILURE);
   }
@@ -79,7 +77,7 @@ void decipher(string text, string file) {
   // headers) is assumed.
   // This also chooses the second overload of "readCSV()" which
   // returns a map with integers as keys.
-  map<uint8_t, vector<string>> cipherTable =
+  map< uint8_t, vector< string >> cipherTable =
     readCSV(file, false, '\t');
   // Prepare a string for output.
   string clearText;
@@ -89,9 +87,9 @@ void decipher(string text, string file) {
   for ( uint8_t i = 0; i < numbers.size(); i++ ) {
     clearText = clearText +
       cipherTable[
-        static_cast<int>(tolower(static_cast<char>(characters[i]))) - 97]
+        static_cast< int >(tolower(static_cast< char >(characters[i]))) - 97]
                  [numbers[i]-1];
   }
   // Present the result.
-  cout << clearText << endl;
+  cout <<  clearText <<  endl;
 }

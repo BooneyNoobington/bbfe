@@ -24,16 +24,16 @@ void newTable(string charset, string file, bool debug = false) {
   srand((unsigned) time(NULL) * getpid());
 
   // Define a few vectors which will hold the values from the .csv file.
-  vector<string> characters;
-  vector<float> abundances;
-  vector<uint8_t> occurences;
+  vector< string > characters;
+  vector< float > abundances;
+  vector< uint8_t > occurences;
 
   // Will serve as a line index later.
   uint8_t lineIndex = 0;
 
   // Obtain the contents of "charset".
   // Delimiter is a tabulator.
-  map< string, vector<string> > characterSet = readCSV(charset, '\t');
+  map< string, vector< string> > characterSet = readCSV(charset, '\t');
 
   ifstream csvRead(charset);  // Read the file.
   // Constructs new object "csvRead".
@@ -50,7 +50,7 @@ void newTable(string charset, string file, bool debug = false) {
   }
   // Create a new vector which will hold all the characters
   // as often as "occurences" dictates.
-  vector<string> charactersMultiplied;
+  vector< string > charactersMultiplied;
 
   /* Enlarge the characters vector.
      Each element should appear according to "occurences". */
@@ -81,18 +81,18 @@ void newTable(string charset, string file, bool debug = false) {
    charactersMultiplied.end() );
 
   // Creat a new vector with all uppercase letters in the alphabet.
-  vector<char> alphabet(26);
+  vector< char > alphabet(26);
   iota(alphabet.begin(), alphabet.end(), 'A');
 
   /* How many "rows" will every "column" of the dictianory have? Important
      thing here: Reinterpret the vector sizes as double. Otherwise they
      won't yield another double after division. */
   int rowCount
-    = ceil(static_cast<float>(charactersMultiplied.size())
-      / static_cast<float>(alphabet.size()));
+    = ceil(static_cast< float >(charactersMultiplied.size())
+      / static_cast< float >(alphabet.size()));
 
   // Declare a new map which will hold the cipher table.
-  map<char, vector<string>> cipherTable;
+  map< char, vector< string > > cipherTable;
 
   int characterIndex = 0;  // Will later be used as iteration index.
 
@@ -100,7 +100,7 @@ void newTable(string charset, string file, bool debug = false) {
      from the "charactersMultiplied" vector succesively.
      The index "characterIndex" makes this succesion possible.*/
   for (int i = 0; i < alphabet.size(); i++) {  // For every letter …
-    cipherTable.insert({ alphabet[i], {} });  // … add a key accordingly.
+    cipherTable.insert({ alphabet[i], { } });  // … add a key accordingly.
     // Leave the character vector empty for now.
     for (int j = 0; j < rowCount; j++) {  // For every row in the upcoming
                                             // cipher table …
@@ -119,7 +119,7 @@ void newTable(string charset, string file, bool debug = false) {
   string line;  // Will be filled for every row later.
   ofstream writeCSV(file);  // Declare new output stream.
                                    // File was given to the function by main().
-  ostream_iterator<string> outputIterator(writeCSV, "\n");
+  ostream_iterator< string > outputIterator(writeCSV, "\n");
   for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
     for (int columnIndex = 0; columnIndex < alphabet.size(); columnIndex++) {
       if (columnIndex < alphabet.size() -1) {

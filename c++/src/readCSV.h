@@ -13,11 +13,11 @@ Bad but (somewhat) fast encryption. */
 #include <vector>  // For class "vector".
 
 // Overload for string keys.
-std::map< std::string, std::vector<std::string>> readCSV(
+std::map< std::string, std::vector< std::string > > readCSV(
   std::string filename, char sep);
 
 // Overload for missing headers and int keys.
-std::map< uint8_t, std::vector<std::string>> readCSV(
+std::map< uint8_t, std::vector< std::string > > readCSV(
   std::string filename, bool header, char sep);
 
 #endif  // C___SRC_READCSV_H_

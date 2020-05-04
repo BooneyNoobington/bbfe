@@ -15,10 +15,10 @@ https://www.gormanalysis.com/blog/reading-and-writing-csv-files-with-cpp/*/
 using namespace std;
 
 // _____________________________________________________________________________
-map<string, vector<string>> readCSV(string filename, char sep = ',') {
+map< string, vector< string > > readCSV(string filename, char sep = ',') {
   // Create a map of keys as strings and values as string vectors
   // to store the result.
-  map<string, vector<string>> result;
+  map< string, vector< string > > result;
 
   // Create an input filestream
   ifstream csvFile(filename);
@@ -36,7 +36,7 @@ map<string, vector<string>> readCSV(string filename, char sep = ',') {
   // Later it's necessary to access a key of the map "result" not by its
   // key but an index.
   // Maps don't have indexes but this auxiliary vector can help.
-  vector<string> columns;
+  vector< string > columns;
 
   // Read the column names
   // "good()" is a comprehensive function to check if the stream is "working".
@@ -53,7 +53,7 @@ map<string, vector<string>> readCSV(string filename, char sep = ',') {
     // TODO(grindel): Add the option to read .csv-files without headers.
     while (getline(ss, colname, sep)) {
       // Initialize and add <colname, string vector> pairs to result.
-      result.insert({ colname, vector<string> {} });
+      result.insert({ colname, vector< string > {} });
       // Also add the "colname" to the correspoding vector "columns".
       columns.push_back(colname);
     }
@@ -86,11 +86,11 @@ map<string, vector<string>> readCSV(string filename, char sep = ',') {
 
 
 // _____________________________________________________________________________
-map< uint8_t, vector<string>> readCSV(string filename
+map< uint8_t, vector< string > > readCSV(string filename
   , bool header, char sep = '\t') {
   // Create a map of keys as integers and values as string vectors
   // to store the result.
-  map<uint8_t, vector<string>> result;
+  map< uint8_t, vector< string > > result;
 
   // Create an input filestream
   ifstream csvFile(filename);
@@ -120,7 +120,7 @@ map< uint8_t, vector<string>> readCSV(string filename
     // Initialize result with empty vectors but as many keys as there are
     // columns.
     for (uint8_t i = 0; i < sepCount; i++) {
-      result.insert({ i, vector<string> {} });
+      result.insert({ i, vector< string > {} });
     }
   }
   // Return to line 0 or line 1 depending of wether headers should be
