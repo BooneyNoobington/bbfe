@@ -7,10 +7,12 @@ Bad but (somewhat) fast encryption. */
 #ifndef C___SRC_FINDINMAP_H_
 #define C___SRC_FINDINMAP_H_
 
-#include <string>  // For class "string".
+#include <vector>  // For class "vector".
+#include <iostream>  // For console in- and output.
 #include <map>  // For class "map".
 #include <utility>  // For class "pair".
-#include <vector>  // For class "vector".
+// TODO(grindel): Why is this needed? It compiles without this header.
+#include <string>  // For class "string".
 
 // First overload with a map of int keys and string vector values.
 std::vector< std::pair< int, int > >

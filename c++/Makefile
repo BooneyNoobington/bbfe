@@ -2,9 +2,9 @@ all: bbfe
 
 # Checking section.
 checkcpp:
-	mkdir .git
-	src/cpplint.py src/*.cpp
-	rm -rf .git
+	touch src/.svn
+	-src/cpplint.py src/*.cpp
+	rm -rf src/.svn
 
 checkh:
 	src/cpplint.py src/*.h

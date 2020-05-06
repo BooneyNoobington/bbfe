@@ -61,6 +61,8 @@ void encipher(string textRaw, string file, bool debug = false) {
   // Enciphering.
   // Reset the seed as fast as possible.
   srand((unsigned) time(NULL) * getpid());
+  // Random number for later.
+  unsigned int randomNumber = getpid();
   // Creat a new vector with all uppercase letters in the alphabet.
   vector< char > alphabet(26);
   iota(alphabet.begin(), alphabet.end(), 'A');
@@ -72,7 +74,7 @@ void encipher(string textRaw, string file, bool debug = false) {
       = findInMap(cipherTable, converter.to_bytes(text.at(i)));
       // "ü");  // text.substr(i, 1));
     // Choose one possibility.
-    int choice = rand() % possibilites.size();
+    int choice = rand_r(&randomNumber) % possibilites.size();
     cipherString = cipherString + alphabet[possibilites[choice].first]
                     + to_string(possibilites[choice].second + 1);
   }

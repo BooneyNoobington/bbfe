@@ -4,15 +4,17 @@ Bad but (somewhat) fast encryption.
 Kudos to:
 https://www.gormanalysis.com/blog/reading-and-writing-csv-files-with-cpp/*/
 
-#include <map>  // For class "map".
-#include <vector>  // For class "vector".
-#include <fstream>  // For file in- and output.
-#include <sstream>  // For class "stringstream".
-#include <algorithm>  // For "count()".
 #include "./readCSV.h"  // Include own header to avoid typos.
 
-// Avoid e.g. having to call "string" "std::string".
-using namespace std;
+// Using declarationsg to avoid long identifiers as "std::string".
+// Can be written in a single line if > C++17 is used.
+using std::map;
+using std::string;
+using std::vector;
+using std::ifstream;
+using std::map;
+using std::runtime_error;
+using std::stringstream;
 
 // _____________________________________________________________________________
 map< string, vector< string > > readCSV(string filename, char sep = ',') {

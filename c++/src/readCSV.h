@@ -8,9 +8,12 @@ Bad but (somewhat) fast encryption. */
 #ifndef C___SRC_READCSV_H_
 #define C___SRC_READCSV_H_
 
+#include <map>  // For class "map".
 #include <string>  // For class "string".
-#include <map>  // For clas "map".
 #include <vector>  // For class "vector".
+#include <fstream>  // For file in- and output.
+#include <sstream>  // For class "stringstream".
+#include <algorithm>  // For "count()".
 
 // Overload for string keys.
 std::map< std::string, std::vector< std::string > > readCSV(

@@ -2,22 +2,18 @@
 GPLv3. See: https://www.gnu.org/licenses/gpl-3.0.de.html
 Bad but (somewhat) fast encryption. */
 
-#include <math.h>  // For "ceil()".
-#include <unistd.h>  // For "getpid()".
-#include <time.h>  // Getting current time and use it for randomization.,
-#include <iostream>  // Input-output operation.
-#include <string>  // Using strings.
-#include <fstream>  // Opening an writing files.
-#include <iterator>  // Iterate over file operation.
-#include <algorithm>  // For "random_shuffle()".
-#include <map>  // Use map class.
-#include <vector>  // Use vector class.
-#include <numeric>  // For "iota()".
-#include "./readCSV.h"  // Declaration of readCSV().
 #include "./newTable.h"  // Include own header to avoid typos.
 
-// Avoid e.g. having to call "string" "std::string".
-using namespace std;
+// Using declarationsg to avoid long identifiers as "std::string".
+// Can be written in a single line if > C++17 is used.
+using std::string;
+using std::ostream_iterator;
+using std::vector;
+using std::map;
+using std::ifstream;
+using std::cout;
+using std::endl;
+using std::ofstream;
 
 void newTable(string charset, string file, bool debug = false) {
   // Reset the seed as fast as possible.
