@@ -18,6 +18,11 @@ Bad but (somewhat) fast encryption. */
 #include "./readCSV.h"  // For the function of the same name.
 #include "./findInMap.h"  // For the function of the same name.
 
+// Encipher a message, naive version.
 void encipher(std::string text, std::string file, bool debug);
+
+// Encipher a message but cache the possible charaters first.
+void encipher(std::string text, std::string file, std::string charset
+  , bool debug);
 
 #endif  // C___SRC_ENCIPHER_H_

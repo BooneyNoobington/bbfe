@@ -4,6 +4,9 @@ Bad but (somewhat) fast encryption. */
 
 // "encipher.h" includes what's needed in this function. E.g. "<string>".
 #include "./encipher.h"
+// "findInMap.h" provides "findInMap()".
+#include "./findInMap.h"
+
 
 // Avoid having to call e.g. "string" "string".
 using std::string;
@@ -17,7 +20,7 @@ using std::vector;
 using std::cout;
 using std::endl;
 
-// Encipher a message.
+// _____________________________________________________________________________
 void encipher(string textRaw, string file, bool debug = false) {
   wstring_convert<codecvt_utf8_utf16< wchar_t > > converter;
   wstring text = converter.from_bytes(textRaw);
@@ -79,5 +82,60 @@ void encipher(string textRaw, string file, bool debug = false) {
                     + to_string(possibilites[choice].second + 1);
   }
   // Respond to the user by outputting the generated cipher string.
+  cout << cipherString << endl;
+}
+
+// _____________________________________________________________________________
+void encipher(string textRaw, string file, string charset
+  , bool debug = false) {
+  wstring_convert<codecvt_utf8_utf16< wchar_t > > converter;
+  wstring text = converter.from_bytes(textRaw);
+  // "text" is the message to be enciphered,
+  // "file" the path to the cipher table.
+
+  // Call the function to read a previously generated cipher table.
+  // By setting the second argument to false, a "headless" file (no
+  // headers) is assumed.
+  // This also chooses the second overload of "readCSV()" which
+  // returns a map with integers as keys.
+  map< uint8_t, vector< string > > cipherTable =
+    readCSV(file, false, '\t');
+
+  // Call the function to read a previously generated charset.
+  // This also chooses the first overload of "readCSV()" which
+  // returns a map with integers as keys.
+  map< string, vector< string > > characterMap =
+    readCSV(charset, '\t');
+
+  // Create a map for every character in the charset.
+  map< wstring, vector< pair< int, int > > > characterPositions;
+  for (int i = 0; i < characterMap["letter"].size(); i++) {
+    // Add a new entry in map to store any findings of a certain character.
+    // Convert the individual characters to wide strings.
+    // Later "characterPositions" will take input from "text" (also wstring).
+    characterPositions.insert({converter.from_bytes(characterMap["letter"][i])
+      , findInMap(cipherTable, characterMap["letter"][i])});
+  }
+
+  // Enciphering.
+  string cipherString;
+  // Creat a new vector with all uppercase letters in the alphabet.
+  vector< char > alphabet(26);
+  iota(alphabet.begin(), alphabet.end(), 'A');
+  // Reset the seed as fast as possible.
+  srand((unsigned) time(NULL) * getpid());
+  // Random number for later.
+  unsigned int randomNumber = getpid();
+  // Respond to the user by outputting the generated cipher string.
+  // Iterate over all characters in string.
+  for (int i = 0; i < text.size(); i++) {
+    // Choose one possibility.
+    int choice =
+      rand_r(&randomNumber) % characterPositions[text.substr(i, 1)].size();
+    cipherString
+      = cipherString
+        + alphabet[characterPositions[text.substr(i, 1)][choice].first]
+        + to_string(characterPositions[text.substr(i, 1)][choice].second + 1);
+  }
   cout << cipherString << endl;
 }

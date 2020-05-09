@@ -34,6 +34,8 @@ int main(int argc, char **argv) {
      , "path to cipher table")
     ("debug,d", po::value<bool>() ->default_value(false)
      , "print debug related output")
+    ("cached,C", po::value<string>()
+     , "Cache characters to be enciphered first.")
     ("command", po::value<string>(), "command to be executed by this program.")
     ("text", po::value<string>(), "Text to be en- or deciphered");
 
@@ -97,14 +99,22 @@ int main(int argc, char **argv) {
     // A message is to be enciphered.
     if (optionsArgumentsMap["command"].as<string>() == "encipher") {
       if (optionsArgumentsMap.count("text")) {
-        // Call the function specifically written for that.
-        encipher(optionsArgumentsMap["text"].as<string>()
-          , optionsArgumentsMap["file"].as<string>()
-          , optionsArgumentsMap["debug"].as<bool>());
+        if (optionsArgumentsMap.count("cached")) {
+          // Call the function specifically written for that.
+          encipher(optionsArgumentsMap["text"].as<string>()
+            , optionsArgumentsMap["file"].as<string>()
+            , optionsArgumentsMap["cached"].as<string>()
+            , optionsArgumentsMap["debug"].as<bool>());
+        } else {  // No caching, naive encryption.
+          // Call the function specifically written for that.
+          encipher(optionsArgumentsMap["text"].as<string>()
+            , optionsArgumentsMap["file"].as<string>()
+            , optionsArgumentsMap["debug"].as<bool>());
+        }
       }
     }
 
-    // A message is to be enciphered.
+    // A message is to be deciphered.
     if (optionsArgumentsMap["command"].as<string>() == "decipher") {
       if (optionsArgumentsMap.count("text")) {
         // Call the function specifically written for that.

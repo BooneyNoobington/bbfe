@@ -38,4 +38,4 @@ clean:
 	rm -rf bbfe
 
 install:
-	install bbfe /home/grindel/Programme
+	install bbfe /usr/local/bin
