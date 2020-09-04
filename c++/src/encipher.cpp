@@ -113,8 +113,11 @@ void encipher(string textRaw, string file, string charset
     // Add a new entry in map to store any findings of a certain character.
     // Convert the individual characters to wide strings.
     // Later "characterPositions" will take input from "text" (also wstring).
-    characterPositions.insert({converter.from_bytes(characterMap["letter"][i])
-      , findInMap(cipherTable, characterMap["letter"][i])});
+    characterPositions.insert(
+      pair< wstring, vector< pair< int, int > > >
+        (converter.from_bytes(characterMap["letter"][i]),
+        findInMap(cipherTable, characterMap["letter"][i]))
+    );
   }
 
   // Enciphering.
