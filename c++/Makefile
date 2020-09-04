@@ -17,16 +17,16 @@ newTable.o: src/newTable.cpp src/readCSV.h src/newTable.h
 	g++ -c src/newTable.cpp -Wall
 
 readCSV.o: src/readCSV.cpp src/readCSV.h
-	g++ -c src/readCSV.cpp
+	g++ -c src/readCSV.cpp -Wall
 
 encipher.o: src/encipher.cpp src/encipher.h src/readCSV.h src/findInMap.h
-	g++ -c src/encipher.cpp
+	g++ -c src/encipher.cpp -Wall
 
 findInMap.o: src/findInMap.cpp src/findInMap.h
-	g++ -c src/findInMap.cpp
+	g++ -c src/findInMap.cpp -Wall
 
 decipher.o: src/decipher.cpp src/decipher.h src/readCSV.h
-	g++ -c src/decipher.cpp
+	g++ -c src/decipher.cpp -Wall
 
 # Linking section.
 bbfe: bbfe.o newTable.o readCSV.o encipher.o findInMap.o decipher.o

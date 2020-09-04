@@ -124,7 +124,7 @@ map< uint8_t, vector< string > > readCSV(string filename
     // Initialize result with empty vectors but as many keys as there are
     // columns.
     for (uint8_t i = 0; i < sepCount; i++) {
-      result.insert({ i, vector< string > {} });
+      result.insert( pair<uint8_t, vector<string>>(i, vector<string>()) );
     }
   }
   // Return to line 0 or line 1 depending of wether headers should be
