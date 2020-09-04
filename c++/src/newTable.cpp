@@ -98,7 +98,7 @@ void newTable(string charset, string file, bool debug = false) {
      The index "characterIndex" makes this succesion possible.*/
   for (int i = 0; i < alphabet.size(); i++) {  // For every letter …
     // … add a key accordingly.
-    cipherTable.insert(pair<char, vector< string >>(alphabet[i], {}));
+    cipherTable.insert(pair<char, vector< string > >(alphabet[i], {}));
     // Leave the character vector empty for now.
     for (int j = 0; j < rowCount; j++) {  // For every row in the upcoming
                                             // cipher table …
