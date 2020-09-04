@@ -56,7 +56,7 @@ map< string, vector< string > > readCSV(string filename, char sep = ',') {
     // TODO(grindel): Add the option to read .csv-files without headers.
     while (getline(ss, colname, sep)) {
       // Initialize and add <colname, string vector> pairs to result.
-      result.insert( pair<string, vector<string> >(
+      result.insert(pair<string, vector<string> >(
         colname, vector<string>()));
       // Also add the "colname" to the correspoding vector "columns".
       columns.push_back(colname);
@@ -124,7 +124,7 @@ map< uint8_t, vector< string > > readCSV(string filename
     // Initialize result with empty vectors but as many keys as there are
     // columns.
     for (uint8_t i = 0; i < sepCount; i++) {
-      result.insert( pair<uint8_t, vector<string> >(i, vector<string>()) );
+      result.insert(pair<uint8_t, vector<string> >(i, vector<string>()));
     }
   }
   // Return to line 0 or line 1 depending of wether headers should be

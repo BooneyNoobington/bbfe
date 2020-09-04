@@ -116,8 +116,7 @@ void encipher(string textRaw, string file, string charset
     characterPositions.insert(
       pair< wstring, vector< pair< int, int > > >
         (converter.from_bytes(characterMap["letter"][i]),
-        findInMap(cipherTable, characterMap["letter"][i]))
-    );
+        findInMap(cipherTable, characterMap["letter"][i])));
   }
 
   // Enciphering.

@@ -77,7 +77,7 @@ void decipher(string text, string file) {
   // headers) is assumed.
   // This also chooses the second overload of "readCSV()" which
   // returns a map with integers as keys.
-  map< uint8_t, vector< string >> cipherTable =
+  map< uint8_t, vector< string > > cipherTable =
     readCSV(file, false, '\t');
   // Prepare a string for output.
   string clearText;
