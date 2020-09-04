@@ -10,6 +10,7 @@ from random import randint, shuffle  # Generate a random integer or shuffle
                                      # a list.
 from datetime import datetime  # Get the current time.
 from sys import exit  # Terminate the script early.
+from table import newTable
 
 parser = ArgumentParser()  # Define a parser.
 # The command passed to this script.
@@ -57,91 +58,9 @@ verbose = arguments.verbose  # Optional argument for verbose output.
 
 ### Creating a cipher table. ###
 if command == 'table':
+  newTable(charset, file)
 
-  # Lists, gathered from a csv-file.
-  place = []
-  character = []
-  abundance = []
-  occurence = []
-
-  try:
-    with open( charset ) as csv_file:  # "with" handles opening and closing.
-        csv_reader = reader( csv_file, delimiter='\t' , quoting=QUOTE_NONE )
-        # An object that contains rows extracted from the file above.
-        next(csv_reader)
-        for row in csv_reader:  # For all extracted lines …
-          # … add new items to the lists for place, letter and its' abundance.
-          place.append(row[0])
-          character.append(row[1])
-          abundance.append(float(row[2].replace(",",".")))
-          # Decimal could be given by a comma.
-  except:
-    print(f'Something went wrong, when opening \'{charset}\'. ' 
-          + 'Does the file exist in the current directory?')
-    exit( 1 )
-
-  # Define a new list which contains an integer
-  # for how often a char is to appear.
-  for element in abundance:
-    occurence.append( ceil( element ) * 2 )  # Round up to get a integer
-                                                  # bigger than zero.
-
-  # New list for characters from the charset but every character appears at
-  # least twice.
-  characters = []
-
-  # Fill this new list.
-  for _ in character:  # For all elements in the "character" list …
-    for __ in range( 0, occurence[character.index(_)] ):
-      # … repeat the following statement n-times (given by occurence).
-      characters.append(_)  # Add a new item.
-
-  # Shuffle the "characters" vector.
-  shuffle( characters )
-
-  alphabet = list(ascii_uppercase)  # A list for the alphabet.
-                                           # Represents the columns.
-  rowcount = ceil(len(characters) / 26)  # How many rows will there be?
-
-
-  cipherTable = {}  # A Dictianory for the character columns and rows.
-
-  for j in range(0, 26):  # 26 times, zero based.
-    cipherTable[alphabet[j]] = [None] * rowcount
-    # Add a new key, which is a letter from the alphabet in ascending order …
-    # and then add empty lists as the value.
-    # Their length is determined by a rounded up number of charactes from
-    # the characters list.
-
-
-  for key in cipherTable:  # Meaning: from A to Z.
-    for index in range(0, len(cipherTable[key])):
-    # Create an index for the elements of the respective list.
-      if len(characters) > 0:  # The character list still has elements.
-        cipherTable[key][index] = characters.pop()
-        # Go to the value of "key" and it's position "index" …
-        # … and place a random element of "characters" there.
-      else:  # Characters list is empty.
-        cipherTable[key][index] = " "  # Fill the position with a whitespace.
-
-
-  # Write the character table to a csv file.
-  try:
-    with open( file, mode='w', newline='' ) as csvfile:
-      linewriter = writer( csvfile, delimiter='\t'
-                           , quoting=QUOTE_NONE, quotechar='', escapechar='\\' )
-      line = []
-      for lineindex in range(0, rowcount):
-        for rowindex in alphabet:
-          line.append(cipherTable[rowindex][lineindex])
-        linewriter.writerow( line )
-        line.clear()
-  except:
-    print(f'A problem when writing the cipher tablle \'{file}\' occured. ' +
-          'No output was generated.' )
-
-  print(f'Succesfully generated a cipher table here \'{file}\'.')
-
+### Encipher a message ###
 if command == 'encipher':
   # Create a new dictionary for the cipher table.
   alphabet = list(ascii_uppercase)  # A list for the alphabet.

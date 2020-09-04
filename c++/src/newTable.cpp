@@ -10,6 +10,7 @@ using std::string;
 using std::ostream_iterator;
 using std::vector;
 using std::map;
+using std::pair;
 using std::ifstream;
 using std::cout;
 using std::endl;
@@ -96,7 +97,8 @@ void newTable(string charset, string file, bool debug = false) {
      from the "charactersMultiplied" vector succesively.
      The index "characterIndex" makes this succesion possible.*/
   for (int i = 0; i < alphabet.size(); i++) {  // For every letter …
-    cipherTable.insert({ alphabet[i], { } });  // … add a key accordingly.
+    // … add a key accordingly.
+    cipherTable.insert(pair<char, vector< string >>(alphabet[i], {}));
     // Leave the character vector empty for now.
     for (int j = 0; j < rowCount; j++) {  // For every row in the upcoming
                                             // cipher table …
