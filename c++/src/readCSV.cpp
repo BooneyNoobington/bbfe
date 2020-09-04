@@ -13,6 +13,7 @@ using std::string;
 using std::vector;
 using std::ifstream;
 using std::map;
+using std::pair;
 using std::runtime_error;
 using std::stringstream;
 
@@ -55,7 +56,8 @@ map< string, vector< string > > readCSV(string filename, char sep = ',') {
     // TODO(grindel): Add the option to read .csv-files without headers.
     while (getline(ss, colname, sep)) {
       // Initialize and add <colname, string vector> pairs to result.
-      result.insert({ colname, vector< string > {} });
+      result.insert( pair<string, vector<string>>(
+        colname, vector<string>()));
       // Also add the "colname" to the correspoding vector "columns".
       columns.push_back(colname);
     }
