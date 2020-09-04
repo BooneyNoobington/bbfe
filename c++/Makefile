@@ -11,10 +11,10 @@ checkh:
 
 # Buildung section.
 bbfe.o: src/bbfe.cpp src/newTable.h src/encipher.h src/decipher.h
-	g++ -c src/bbfe.cpp
+	g++ -c src/bbfe.cpp -Wall
 
 newTable.o: src/newTable.cpp src/readCSV.h src/newTable.h
-	g++ -c src/newTable.cpp
+	g++ -c src/newTable.cpp -Wall
 
 readCSV.o: src/readCSV.cpp src/readCSV.h
 	g++ -c src/readCSV.cpp

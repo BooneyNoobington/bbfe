@@ -25,9 +25,6 @@ void newTable(string charset, string file, bool debug = false) {
   vector< float > abundances;
   vector< uint8_t > occurences;
 
-  // Will serve as a line index later.
-  uint8_t lineIndex = 0;
-
   // Obtain the contents of "charset".
   // Delimiter is a tabulator.
   map< string, vector< string> > characterSet = readCSV(charset, '\t');
@@ -98,7 +95,8 @@ void newTable(string charset, string file, bool debug = false) {
      The index "characterIndex" makes this succesion possible.*/
   for (int i = 0; i < alphabet.size(); i++) {  // For every letter …
     // … add a key accordingly.
-    cipherTable.insert(pair<char, vector< string > >(alphabet[i], {}));
+    cipherTable.insert(pair<char, vector<string> >
+      (alphabet[i], vector<string>()));
     // Leave the character vector empty for now.
     for (int j = 0; j < rowCount; j++) {  // For every row in the upcoming
                                             // cipher table …
