@@ -1,3 +1,6 @@
+# Some variables.
+PREFIX = /usr/local
+
 all: bbfe
 
 # Checking section.
@@ -38,4 +41,4 @@ clean:
 	rm -rf bbfe
 
 install:
-	install bbfe /usr/local/bin
+	install bbfe $(PREFIX)
