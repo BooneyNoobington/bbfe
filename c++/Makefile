@@ -40,5 +40,13 @@ clean:
 	rm -rf *.o *.cpp  # Delete all created objects and maybe missguided cpp files.
 	rm -rf bbfe
 
+# Installation section.
 install:
-	install bbfe $(PREFIX)
+	# Create /bin directory in $(PREFIX) if it doesn't already exist.
+	mkdir -p $(PREFIX)/bin
+	# Copy the new file there. TODO: What's the difference between copy and inst.?
+	install bbfe $(PREFIX)/bin
+	# Create a new directory for the charset.
+	mkdir -p $(PREFIX)/share
+	# Copy it there.
+	install ../share/alphabet_histogram.csv $(PREFIX)/share
