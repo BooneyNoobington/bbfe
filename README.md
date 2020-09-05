@@ -19,13 +19,20 @@ Depending on which variant of bbfe you want to use, you need:
 
 ### Installing
 
-Interpreted versions of this programm don't need installing and shoud work out of the box.
+Interpreted versions of this programm don't need installing and should work out of the box.
 
-For C++ just run navigate to the ````c++```` directory and run.
+For C++ just run navigate to the ````c++```` directory and run:
 
 ```
-g++ -o bbfe bbfe.cpp
+make
+make install
 ```
+
+To install it in a specific directory (other than ````/usr/local````), run:
+
+````
+make install PREFIX=/path/to/target/directory
+````
 
 ## Basic functions
 
@@ -41,16 +48,16 @@ In order to create a new cipher table one must provide bbfe with a set of charac
 
 This file needs three columns.
 
-* place: consecutive number of a certain character (to be removed in future versions). 
+* place: consecutive number of a certain character (to be removed in future versions).
 * letter: the character to be placed in the cipher table.
-* abundance: How often does a letter appear statistically in common words of a language? Can be chosen at random for non letter characters like dots or exclamation marks. 
+* abundance: How often does a letter appear statistically in common words of a language? Can be chosen at random for non letter characters like dots or exclamation marks.
 
 To encipher create a new new cipher table navigate to the programing language directory of your choosing.
 
 For the python variant type:
 
 ```
-./bbfe.py table --file path_to_write_cipher_table --charset path_to_possible_characters_file
+./bbfe.py table --file path/to/write/cipher/table --charset path/to/possible/characters/file
 ```
 
 The characters from the charset file will now be randomly placed in the cipher table.
@@ -59,7 +66,7 @@ Characters with a higher abundance will be placed more often.
 For the C++ and R variants simply use:
 
 ```
-./bbfe[.r] table path_to_write_cipher_table charset path_to_possible_characters_file
+./bbfe[.r] table path/to/write/cipher/table charset path/to/possible/characters/file
 ```
 
 ### encipher
@@ -69,13 +76,13 @@ To encipher the string ````Hello world.```` navigate to the programing language 
 For python type:
 
 ```
-./bbfe.py encipher "Hello World." --file path_to_cipher_table
+./bbfe.py encipher "Hello World." --file path/to/cipher/table
 ```
 
 For the C++ and R variants type:
 
 ```
-./bbfe[.r] encipher "Hello World." path_to_cipher_table
+./bbfe[.r] encipher "Hello World." path/to/cipher/table
 ```
 
 ### decipher
@@ -98,4 +105,3 @@ This project is licensed under GNU General Public License (GPLv3) - see [https:/
 * stackoverflow.com
 * Google Search
 * Prof. Hannah Bast and her lecture on programming with C++
-
