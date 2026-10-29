@@ -1,0 +1,30 @@
+name: Apple
+
+on:
+  push:
+    paths: ['Apple/**', '.github/workflows/apple.yml']
+  pull_request:
+    paths: ['Apple/**', '.github/workflows/apple.yml']
+  workflow_dispatch:
+
+jobs:
+  core:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test Unicode engine and CLI
+        run: swift test --package-path Apple
+
+  app:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        destination: ['platform=macOS', 'generic/platform=iOS Simulator']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build SwiftUI application
+        run: >-
+          xcodebuild -project Apple/BBFE.xcodeproj -scheme BBFE
+          -destination '${{ matrix.destination }}'
+          -derivedDataPath /tmp/BBFEDerivedData
+          CODE_SIGNING_ALLOWED=NO build

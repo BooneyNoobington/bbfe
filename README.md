@@ -1,107 +1,65 @@
-# bbfe: Bad but (somewhat) fast encryption
+# bbfe · a little cipher lab
 
-Ciphering of characters according to their positions in a corresponding cipher table.
-It is written in different languages for comparison.
+**Bad but (somewhat) fast encryption**, originally written by Markus Roth. BBFE scatters a weighted alphabet across a table with columns A–Z, then replaces each symbol with a randomly chosen coordinate.
 
-## Purpose
+The repository now includes a native **macOS, iOS, and iPadOS app**, a shared Swift engine, and a new command-line tool. The original C++, Python, and R implementations are preserved.
 
-This program is meant for studying and not actual encryption.
-Perhaps it can be used in conjunction with gnupg or other actual encrytion software to encipher mail headers and make it more difficult to monitor mail traffic.
+## Run the Apple app
 
-### Prerequisites
+1. Install **Xcode 16 or newer**, launch it once, and let it install its required components.
+2. Open [`Apple/BBFE.xcodeproj`](Apple/BBFE.xcodeproj).
+3. Select the **BBFE** scheme and **My Mac**, an iPhone simulator, or an iPad simulator. Press **⌘R**.
+4. For Keychain access and installation on your own devices, choose your Apple development team under **BBFE → Signing & Capabilities**. Keep the same bundle identifier and team on your devices for shared iCloud Keychain records.
 
-Depending on which variant of bbfe you want to use, you need:
+Requires **macOS 14+** or **iOS/iPadOS 17+**. No third-party dependencies, server, or API key is needed. Install a simulator runtime from Xcode's Settings → Components if none is available.
 
-* An R environment
-* An python 3 environment
-* A c++ compiler and common libraries
+## Features
 
+- **Workspace:** encipher and decipher pasted text or UTF-8 files, copy/export results, and choose optional padding.
+- **Alphabet Lab:** paste example text, inspect a Unicode scalar histogram, and generate a weighted random table. Import alphabets from JSON or the original histogram TSV format.
+- **Cipher Table:** inspect coordinates, search symbols, and import/export JSON or compatible legacy TSV.
+- **Saved Keys:** store named alphabet/table pairs in Apple Keychain, optionally request iCloud Keychain sync, and load or delete saved keys.
 
-### Installing
+**Save or export a table before closing the app or generating a replacement.** New tables are random. Old messages require their original table; the alphabet alone cannot recreate it. Messages and training text are held in memory and are not automatically saved.
 
-Interpreted versions of this programm don't need installing and should work out of the box.
+Unicode scalar handling preserves tabs, line breaks, emoji, combining marks, and NUL without normalization. There is no fixed message-length cutoff; this version holds input and output in memory. Build an alphabet containing the symbols you want to encipher from representative text, or import a suitable alphabet.
 
-For C++ just run navigate to the ````c++```` directory and run:
+Profiles are managed **inside BBFE** using Apple Keychain. Arbitrary tables are not Passwords app login entries. See [Apple's Keychain documentation](https://developer.apple.com/documentation/security/using-the-keychain-to-manage-user-secrets).
 
-```
-make
-make install
-```
+BBFE remains an **educational substitution cipher** without authentication or modern encryption guarantees. Padding fills coordinate-token blocks; the BBFE2 header still exposes the original scalar count.
 
-To install it in a specific directory (other than ````/usr/local````), run:
+## Swift command line
 
-````
-make install PREFIX=/path/to/target/directory
-````
+```sh
+export DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer
+cd Apple
+swift test
+swift build -c release
+.build/release/bbfe --help
 
-## Basic functions
-
-The three functions of bbfe are:
-
-* creating a new cipher table (table).
-* enciphering a string (encipher) according to a given cipher table.
-* deciphering a string (decipher) according to a given cipher table.
-
-### table
-
-In order to create a new cipher table one must provide bbfe with a set of characters to place in said table.
-
-This file needs three columns.
-
-* place: consecutive number of a certain character (to be removed in future versions).
-* letter: the character to be placed in the cipher table.
-* abundance: How often does a letter appear statistically in common words of a language? Can be chosen at random for non letter characters like dots or exclamation marks.
-
-To encipher create a new new cipher table navigate to the programing language directory of your choosing.
-
-For the python variant type:
-
-```
-./bbfe.py table --file path/to/write/cipher/table --charset path/to/possible/characters/file
+# Learn an alphabet, retain a key, and round-trip a UTF-8 file.
+.build/release/bbfe histogram --input sample.txt --output alphabet.json
+.build/release/bbfe table --alphabet alphabet.json --output key.json
+.build/release/bbfe encipher --table key.json --input sample.txt --padding 256 --output message.bbfe
+.build/release/bbfe decipher --table key.json --input message.bbfe --output recovered.txt
+cmp sample.txt recovered.txt
 ```
 
-The characters from the charset file will now be randomly placed in the cipher table.
-Characters with a higher abundance will be placed more often.
+Input/output support standard input/output using `-`. JSON keys work with the app and new CLI. See [`Apple/README.md`](Apple/README.md) for formats, legacy interoperability, build checks, and signing.
 
-For the C++ and R variants simply use:
+## Repository
 
-```
-./bbfe[.r] table path/to/write/cipher/table charset path/to/possible/characters/file
-```
+| Path | Contents |
+| --- | --- |
+| `Apple/BBFE/` | Shared SwiftUI application and Keychain vault |
+| `Apple/Sources/BBFECore/` | Unicode alphabet, weighted tables, coordinate cipher |
+| `Apple/Sources/bbfe/` | Swift CLI |
+| `Apple/Tests/` | Engine regression tests |
+| `c++/`, `python/`, `R/` | Original implementations |
+| `share/` | Original sample alphabet histogram |
 
-### encipher
-
-To encipher the string ````Hello world.```` navigate to the programing language directory of your choosing.
-
-For python type:
-
-```
-./bbfe.py encipher "Hello World." --file path/to/cipher/table
-```
-
-For the C++ and R variants type:
-
-```
-./bbfe[.r] encipher "Hello World." path/to/cipher/table
-```
-
-### decipher
-
-Vice versa.
-
-
-
-## Authors
-
-* **Markus Roth** - *Initial work*
-
+The original instructions are retained in [`docs/legacy-cli.md`](docs/legacy-cli.md). Original implementations retain their limitations; Swift is the maintained Apple implementation.
 
 ## License
 
-This project is licensed under GNU General Public License (GPLv3) - see [https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html) for details
-
-## Acknowledgments
-
-* stackoverflow.com
-* Google Search
-* Prof. Hannah Bast and her lecture on programming with C++
+GNU GPL v3, as declared by the original project. See the [GNU GPL v3 license](https://www.gnu.org/licenses/gpl-3.0.html). Original author: **Markus Roth**. Original acknowledgments: Stack Overflow and Prof. Hannah Bast's C++ lectures.
